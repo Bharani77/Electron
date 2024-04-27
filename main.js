@@ -12,31 +12,53 @@ let timediff = 0;
 //fetch from execute.sh
 let rival = "null";
 let time = "null";
-
+let status_tab = false;
 
 let count = 2;
 let checkPlanetVar = false;
 let checkPlanetPrisonVar = false;
 let released = 0;
 
-// app.commandLine.appendSwitch('--disable-web-security');
-// app.commandLine.appendSwitch('--disable-extensions');
-// app.commandLine.appendSwitch('--disable-infobars');
-// app.commandLine.appendSwitch('--disable-dev-shm-usage');
-// app.commandLine.appendSwitch('--disable-gpu');
-// app.commandLine.appendSwitch('--disable-software-rasterizer');
-// app.commandLine.appendSwitch('--disable-background-timer-throttling');
-// app.commandLine.appendSwitch('--disable-backgrounding-occluded-windows');
-// app.commandLine.appendSwitch('--disable-renderer-backgrounding');
-// app.commandLine.appendSwitch('--disable-accelerated-2d-canvas');
-// //app.commandLine.appendSwitch('--no-sandbox');
-// app.commandLine.appendSwitch('--disable-setuid-sandbox');
-// app.commandLine.appendSwitch('--disable-popup-blocking');
-// app.commandLine.appendSwitch('--disable-images');
-// app.commandLine.appendSwitch('--blink-settings=imagesEnabled=false');
+app.commandLine.appendSwitch('--disable-web-security');
+app.commandLine.appendSwitch('--disable-extensions');
+app.commandLine.appendSwitch('--disable-infobars');
+app.commandLine.appendSwitch('--disable-dev-shm-usage');
+app.commandLine.appendSwitch('--disable-gpu');
+app.commandLine.appendSwitch('--disable-software-rasterizer');
+app.commandLine.appendSwitch('--disable-background-timer-throttling');
+app.commandLine.appendSwitch('--disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('--disable-renderer-backgrounding');
+app.commandLine.appendSwitch('--disable-accelerated-2d-canvas');
+//app.commandLine.appendSwitch('--no-sandbox');
+app.commandLine.appendSwitch('--disable-setuid-sandbox');
+app.commandLine.appendSwitch('--disable-popup-blocking');
+app.commandLine.appendSwitch('--disable-images');
+app.commandLine.appendSwitch('--blink-settings=imagesEnabled=false');
 function createWindow() {
-  const mainWindow = new BrowserWindow({ show: true });
+  const mainWindow = new BrowserWindow({
+    show: false,
+    width: 1800,
+    height: 600,
+    webPreferences: {
+      images: false, // Disable loading of images
+      allowRunningInsecureContent: true,
+      nodeIntegration: true, // Enable Node.js integration
+      contextIsolation: false
+    }
+  });
+   const blockedFileTypes = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.css', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.ico', '.wav'];
 
+  // Intercept requests to block specified file types
+  session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
+    const url = details.url.toLowerCase();
+    if (blockedFileTypes.some(type => url.endsWith(type))) {
+      // Block the request by returning an object with cancel: true
+      callback({ cancel: true });
+    } else {
+      // Allow the request to continue
+      callback({});
+    }
+  });
   mainWindow.loadURL('https://galaxy.mobstudio.ru/web/');
 
   mainWindow.webContents.on('did-finish-load', async () => {
@@ -106,7 +128,8 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
     rivalArray = result.rival;
     count = result.count;
     checkPlanetVar = result.checkPlanetVar;
-    if (count !== "1" && checkPlanetVar) {
+	status_tab = await waitForElement(mainWindow, '//*[@id="root"]/div/div[2]/div[2]/div[1]/div[6]/div');
+    if (count !== "1" && checkPlanetVar && status_tab) {
     const currentTimeWithMillisecondsStart = new Date().getTime();
     await clickElement(mainWindow, `//span[contains(text(), "${planet}")]`, {}, 'xpath');
     await clickElement(mainWindow, '//span[contains(text(), "Online now")]', {}, 'xpath');
@@ -164,9 +187,9 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
       // });
     }
     isPageInitialized = true;
-  }else if(count === "1"){
-      mainWindow.reload();
-      await mainWindow.webContents.executeJavaScript(`localStorage.setItem('loopTime', 2)`);
+  //}else if(count === "1"){
+   //   mainWindow.reload();
+   //   await mainWindow.webContents.executeJavaScript(`localStorage.setItem('loopTime', 2)`);
   }
   else{
     await planetFly(mainWindow, planet);
@@ -322,14 +345,15 @@ async function checkPlanet(window, planet) {
 
 async function planetFly(window, planet) {
   try {
-      await sleep(2000);
+    //  await sleep(2000);
       await waitForElement(window, '//div[2]/span');
-      checkPlanetVar = await checkPlanet(window, planet);
+    //  checkPlanetVar = await checkPlanet(window, planet);
       checkPlanetPrisonVar = await checkPlanet(window, "Prison");
-    if (checkPlanetVar) {
+    if (!checkPlanetPrisonVar) {
           console.log('You are already in attacking planet!!!');
+		  await window.webContents.executeJavaScript(`localStorage.setItem('loopTime', 2)`);
           window.webContents.reload();
-    }else if(checkPlanetPrisonVar){
+    }else{
         console.log('You are in Prison!!!');
         await release(window, planet);
     }
@@ -367,7 +391,7 @@ async function updateRivalAndTime(mainWindow, planet) {
     // Execute tasks in parallel
     const [localStorageResult, fileContent, checkPlanetVar] = await Promise.all([
       mainWindow.webContents.executeJavaScript('localStorage.getItem("loopTime")'),
-      fs.promises.readFile("D:\\git_code\\ElectronGalaxy\\control.sh", 'utf-8'),
+      fs.promises.readFile("C:\\git_code\\ElectronGalaxy\\control.sh", 'utf-8'),
       checkPlanet(mainWindow, planet),
     ]);
 
