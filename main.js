@@ -14,7 +14,7 @@ let rival = "null";
 let time = "null";
 let status_tab = false;
 let adjustTime = 0;
-
+let reduce = 20;
 let count = 2;
 let checkPlanetVar = false;
 let checkPlanetPrisonVar = false;
@@ -139,12 +139,16 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
     `);
     const targetIndex = rivals.findIndex(r => rivalArray.some(word => r.includes(word)));
     if (targetIndex !== -1) {
-      adjustTime = await window.webContents.executeJavaScript('localStorage.getItem("adjustTime")');
+      adjustTime = await mainWindow.webContents.executeJavaScript('localStorage.getItem("adjustTime")');
       if (adjustTime == 0){
-        time = result.time;
+        time = result.time; //1600
         console.log("Original Value"+time);
       }else{
-        time = result.time + 100;
+        outputtime = parseInt(result.time) - 5 * reduce;
+        reduce = reduce - 1;
+        if (reduce <= 0){
+          reduce = 20;
+        }
         console.log("Updated time"+time);
         await mainWindow.webContents.executeJavaScript(`localStorage.setItem('adjustTime', 0)`);
       }
