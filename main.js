@@ -13,6 +13,7 @@ let timediff = 0;
 let rival = "null";
 let time = "null";
 let status_tab = false;
+let adjustTime = 0;
 
 let count = 2;
 let checkPlanetVar = false;
@@ -72,7 +73,7 @@ function createWindow() {
               // Session data cleared
           });
         await initializePage(mainWindow);
-        await mainWindow.webContents.executeJavaScript(`localStorage.setItem('adjustedTime', ${time})`);
+        await mainWindow.webContents.executeJavaScript(`localStorage.setItem('adjustTime', 0)`);
         await mainWindow.webContents.executeJavaScript(`localStorage.setItem('loopTime', 1)`);
         await mainWindow.webContents.executeJavaScript(`localStorage.setItem('release', 0)`);
         isPageInitialized = true;
@@ -138,6 +139,15 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
     `);
     const targetIndex = rivals.findIndex(r => rivalArray.some(word => r.includes(word)));
     if (targetIndex !== -1) {
+      adjustTime = await window.webContents.executeJavaScript('localStorage.getItem("adjustTime")');
+      if (adjustTime == 0){
+        time = result.time;
+        console.log("Original Value"+time);
+      }else{
+        time = result.time + 100;
+        console.log("Updated time"+time);
+        await mainWindow.webContents.executeJavaScript(`localStorage.setItem('adjustTime', 0)`);
+      }
       await mainWindow.webContents.executeJavaScript(`
         (() => {
             const rivals = Array.from(document.querySelectorAll('li'));
@@ -179,6 +189,7 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
       await mainWindow.webContents.executeJavaScript(`localStorage.setItem('loopTime', 2)`);
       //time = time - 20;
       //console.log("New time" +time);
+      await mainWindow.webContents.executeJavaScript(`localStorage.setItem('adjustTime', 1)`);
       await clickElementAndWait(mainWindow, rival, time, planet, auto);
       // Wait for the page to finish reloading before continuing
       // await new Promise(resolve => {
