@@ -144,7 +144,7 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
         time = result.time; //1600
         console.log("Original Value"+time);
       }else{
-        outputtime = parseInt(result.time) - 5 * reduce;
+        time = parseInt(result.time) - 5 * reduce;
         reduce = reduce - 1;
         if (reduce <= 0){
           reduce = 20;
