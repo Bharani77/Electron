@@ -411,7 +411,7 @@ async function updateRivalAndTime(mainWindow, planet) {
     // Execute tasks in parallel
     const [localStorageResult, fileContent, checkPlanetVar] = await Promise.all([
       mainWindow.webContents.executeJavaScript('localStorage.getItem("loopTime")'),
-      fs.promises.readFile("C:\\git_code\\ElectronGalaxy\\control.sh", 'utf-8'),
+      fs.promises.readFile("/Electron/control.sh", 'utf-8'),
       checkPlanet(mainWindow, planet),
     ]);
 
