@@ -173,25 +173,25 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
       await waitingTime(auto, time, timediff, Diff);
      // await clickElement(mainWindow, '//span[contains(text(), "Imprison")]', {}, 'xpath');
       // Use Promise.all to execute all three tasks concurrently
-      await clickElement(mainWindow, '//span[contains(text(), "Imprison")]', {}, 'xpath');
-      const currentTimeWithMillisecondsAfterImprison = new Date().getTime();
+      //await clickElement(mainWindow, '//span[contains(text(), "Imprison")]', {}, 'xpath');
+      //mainWindow.webContents.reload();
+      Promise.all([
+      //  clickElementPromise(mainWindow, '.dialog__close-button > img', {}, 'css'),
+	clickElement(mainWindow, '//span[contains(text(), "Imprison")]', {}, 'xpath'),
+        clickElementPromise(mainWindow, '//a[contains(., "Exit")]', {}, 'xpath'),
+        reloadWindowPromise(mainWindow)
+      ])
+        .then(() => {
+          // All tasks completed successfully
+          console.log('All tasks completed successfully');
+        })
+        .catch((error) => {
+          // Handle errors from any of the tasks
+          console.error('Error:', error.message);
+        });
+	const currentTimeWithMillisecondsAfterImprison = new Date().getTime();
       const predictTime = currentTimeWithMillisecondsAfterImprison - currentTimeWithMillisecondsStart
       console.log("Prediction time"+predictTime);
-      mainWindow.webContents.reload();
-      //Promise.all([
-        //clickElementPromise(mainWindow, '.dialog__close-button > img', {}, 'css'),
-        //clickElementPromise(mainWindow, '//a[contains(., "Exit")]', {}, 'xpath'),
-//      clickElement(mainWindow, '//span[contains(text(), "Imprison")]', {}, 'xpath'),
-       // reloadWindowPromise(mainWindow)
-      //])
-       // .then(() => {
-          // All tasks completed successfully
-        //  console.log('All tasks completed successfully');
-        //})
-        //.catch((error) => {
-          // Handle errors from any of the tasks
-         // console.error('Error:', error.message);
-       // });
     } else {
       console.log("Here rival not found");
       await clickElement(mainWindow, 'button:nth-child(2) > img', {}, 'css');
