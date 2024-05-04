@@ -178,7 +178,7 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
       Promise.all([
       //  clickElementPromise(mainWindow, '.dialog__close-button > img', {}, 'css'),
 	clickElement(mainWindow, '//span[contains(text(), "Imprison")]', {}, 'xpath'),
-	await waitingTime(auto, time, timediff, Diff);
+	await waitingTime(auto, time, timediff, Diff),
         clickElementPromise(mainWindow, '//a[contains(., "Exit")]', {}, 'xpath'),
         reloadWindowPromise(mainWindow)
       ])
