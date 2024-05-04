@@ -15,6 +15,7 @@ let time = "null";
 let status_tab = false;
 let adjustTime = 0;
 let reduce = 20;
+let reduced = 1;
 let count = 2;
 let checkPlanetVar = false;
 let checkPlanetPrisonVar = false;
@@ -141,15 +142,19 @@ async function clickElementAndWait(mainWindow, rival, time, planet, auto) {
     if (targetIndex !== -1) {
       adjustTime = await mainWindow.webContents.executeJavaScript('localStorage.getItem("adjustTime")');
       if (adjustTime == 0){
-        time = result.time; //1600
-        console.log("Original Value"+time);
+	time = parseInt(result.time) - 5 * reduced;
+        reduced = reduced + 1;
+        if (reduced >= 20){
+          reduced = 1;
+        }
+        console.log("Updated value 1"+time);
       }else{
         time = parseInt(result.time) - 5 * reduce;
         reduce = reduce - 1;
         if (reduce <= 0){
           reduce = 20;
         }
-        console.log("Updated time"+time);
+        console.log("Updated time value 2"+time);
         await mainWindow.webContents.executeJavaScript(`localStorage.setItem('adjustTime', 0)`);
       }
       await mainWindow.webContents.executeJavaScript(`
